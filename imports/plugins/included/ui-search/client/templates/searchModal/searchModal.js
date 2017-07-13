@@ -3,7 +3,7 @@ import React from "react";
 import { DataType } from "react-taco-table";
 import { Template } from "meteor/templating";
 import { i18next } from "/client/api";
-import { ProductSearch, Tags, OrderSearch, AccountSearch } from "/lib/collections";
+import { ProductSearch, Tags, Products, OrderSearch, AccountSearch, Shops } from "/lib/collections";
 import { IconButton, SortableTable } from "/imports/plugins/core/ui/client/components";
 
 /*
@@ -20,6 +20,7 @@ function tagToggle(arr, val) {
  * searchModal onCreated
  */
 Template.searchModal.onCreated(function () {
+  // console.log('The count is: ', productResults);
   this.state = new ReactiveDict();
   this.state.setDefault({
     initialLoad: true,
@@ -49,7 +50,6 @@ Template.searchModal.onCreated(function () {
     const searchQuery = this.state.get("searchQuery");
     const facets = this.state.get("facets") || [];
     const sub = this.subscribe("SearchResults", searchCollection, searchQuery, facets);
-
     if (sub.ready()) {
       /*
        * Product Search
@@ -59,8 +59,10 @@ Template.searchModal.onCreated(function () {
         const productResultsCount = productResults.length;
         this.state.set("productSearchResults", productResults);
         this.state.set("productSearchCount", productResultsCount);
-
+        console.log('The count is: ', productResultsCount);
+        console.log('products found are: ', productResults);
         const hashtags = [];
+        const productIds = [];
         for (const product of productResults) {
           if (product.hashtags) {
             for (const hashtag of product.hashtags) {
@@ -69,10 +71,23 @@ Template.searchModal.onCreated(function () {
               }
             }
           }
+          productIds.push(product._id);
         }
         const tagResults = Tags.find({
           _id: { $in: hashtags }
         }).fetch();
+        const products = Products.find({
+          _id: { $in: productIds }
+        }).fetch();
+        const shopIds = products.map(product => product.shopId);
+        const vendors = products.map(product => product.vendor);
+        const shops = Shops.find({
+          _id: { $in: shopIds }
+        }).fetch();
+        console.log('tags found are: ', tagResults);
+        console.log('products with full details: ', products);
+        console.log('shops found are: ', shops);
+        console.log('vendors found are: ', vendors);
         this.state.set("tagSearchResults", tagResults);
 
         // TODO: Do we need this?
@@ -143,6 +158,7 @@ Template.searchModal.helpers({
   tagSearchResults() {
     const instance = Template.instance();
     const results = instance.state.get("tagSearchResults");
+    console.log('Tag search results:', results);
     return results;
   },
   showSearchResults() {
