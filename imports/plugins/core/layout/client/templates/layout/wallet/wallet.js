@@ -198,6 +198,48 @@ Template.wallet.events({
       return false;
     }
     payWithPaystack(userMail, amount);
+    },
+  "submit #transfer": event => {
+    event.preventDefault();
+    const amount = parseInt(
+      document.getElementById("transferAmount").value,
+      10
+    );
+    if (amount > Template.instance().state.get("details").balance) {
+      Alerts.toast("Insufficient Balance", "error");
+      return false;
+    }
+    if (amount < 0) {
+      Alerts.toast("Amount cannot be negative", "error");
+      return false;
+    }
+    if (amount === 0 || amount == "") {
+      Alerts.toast("Please enter amount ", "error");
+      return false;
+    }
+    const recipient = document.getElementById("recipient").value;
+    const transaction = {
+      amount,
+      to: recipient,
+      date: new Date(),
+      transactionType: "Debit"
+    };
+    Meteor.call(
+      "wallet/transaction",
+      Meteor.userId(),
+      transaction,
+      (err, res) => {
+        if (res === 2) {
+          Alerts.toast(`No user with email ${recipient}`, "error");
+        } else if (res === 1) {
+          document.getElementById("recipient").value = "";
+          document.getElementById("transferAmount").value = "";
+          Alerts.toast("The transfer was successful", "success");
+        } else {
+          Alerts.toast("An error occured, please try again", "error");
+        }
+      }
+    );
   }
 });
 
