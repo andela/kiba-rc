@@ -25,34 +25,39 @@
             </tr>
           </thead>
           <tbody>
-            {{#if getTransactions }}
-              {{#each transaction in getTransactions }}
-              <tr>
-                <td>{{capitalize transaction.transactionType}}</td>
-                <td>{{formatPrice transaction.amount}}</td>
-                {{#if transaction.from }}
-                  <td>{{transaction.from}}</td>
-                {{else}}
-                  <td>Self</td>
-                {{/if}}
-                {{#if transaction.to }}
-                  <td>{{transaction.to}}</td>
-                {{else}}
-                  <td>Self</td>
-                {{/if}}
-                {{#if transaction.orderId }}
-                  <td>{{transaction.orderId}}</td>
-                {{else}}
-                  <td>NA</td>
-                {{/if}}
-                <td>{{formatDate transaction.date}}</td>
-              </tr>
-              {{/each}}
-            {{else}}
+            {{#if getTransactions }} {{#each transaction in getTransactions }}
+            <tr>
+              <td>{{capitalize transaction.transactionType}}</td>
+              <td>{{formatPrice transaction.amount}}</td>
+              {{#if transaction.from }}
+              <td>{{transaction.from}}</td>
+              {{else}}
+              <td>Self</td>
+              {{/if}} {{#if transaction.to }}
+              <td>{{transaction.to}}</td>
+              {{else}}
+              <td>Self</td>
+              {{/if}} {{#if transaction.orderId }}
+              <td>{{transaction.orderId}}</td>
+              {{else}}
+              <td>NA</td>
+              {{/if}}
+              <td>{{formatDate transaction.date}}</td>
+            </tr>
+            {{/each}} {{else}}
             <tr>You do not have any transaction yet!</tr>
             {{/if}}
           </tbody>
         </table>
+        <div style="text-align:center;">
+          <input type="button" id="first" value="First" />
+          <input type="button" id="next" value="Next" />
+          <input type="button" id="previous" value="Previous" />
+          <input type="button" id="last" value="Last" />
+        </div>
+        <div style="text-align:center;">
+         Page {{ getCurrentPage }}
+         </div>
       </div>
     </div>
   </div>
