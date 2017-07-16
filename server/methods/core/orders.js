@@ -326,6 +326,48 @@ Meteor.methods({
   "orders/sendNotification": function (order) {
     check(order, Object);
 
+  /**
+   * orders/sendSmsNotifications
+   *
+   * @summary send order notification sms to users
+   * @param {Object} order - order object
+   * @return {Boolean} sms sent or not
+   */
+    const shoppersPhone = order.billing[0].address.phone;
+    Logger.info("CUSTOMER ORDER DETAILS", order.items);
+    Logger.info("CUSTOMER'S EMAIL", order.email);
+    Logger.info("CUSTOMERS PHONE NUMBER " + shoppersPhone);
+
+    // let vendorPhones = [];
+    const smsContent = {
+      to: shoppersPhone,
+      message: "Your Order has been successfully received and is been processed. Thanks."
+    };
+    Logger.info("smsContent for Customer", smsContent);
+
+    const success = "SMS SENT ";
+
+    if (order.workflow.status === "new") {
+      Meteor.call("send/smsAlert", smsContent, (error) => {
+        Meteor.call("orders/response/error", error, success);
+      });
+    } else if (order.workflow.status === "coreOrderWorkflow/processing") {
+      smsContent.message = "Your orders is on the way and will soon be delivered";
+      Meteor.call("send/smsAlert", smsContent, (error) => {
+        Meteor.call("orders/response/error", error, success);
+      });
+    } else if (order.workflow.status === "coreOrderWorkflow/completed") {
+      smsContent.message = "Your orders has been shipped, thanks.";
+      Meteor.call("send/smsAlert", smsContent, (error) => {
+        Meteor.call("orders/response/error", error, success);
+      });
+    } else if (order.workflow.status === "coreorderWorkflow/canceled") {
+      smsContent.message = "Your order was cancelled";
+      Meteor.call("send/smsAlert", smsContent, (error) => {
+        Meteor.call("orders/response/error", error, success);
+      });
+    }
+
     if (!this.userId) {
       Logger.error("orders/sendNotification: Access denied");
       throw new Meteor.Error("access-denied", "Access Denied");
