@@ -477,12 +477,38 @@ Meteor.methods({
     Reaction.Email.send({
       to: order.email,
       from: `${shop.name} <${shop.emails[0].address}>`,
-      subject: `Your order is confirmed`,
+      subject: "Your order is confirmed",
       // subject: `Order update from ${shop.name}`,
       html: SSR.render(tpl,  dataForOrderEmail)
     });
 
     return true;
+  },
+
+  /**
+   * send/smsAlert
+   *
+   * @summary trigger sms from twilio
+   * @param {Object} smsContent - body of message object
+   * @return {Object} return success or error on completion
+   */
+  "send/smsAlert": function (smsContent) {
+    check(smsContent, Object);
+    const accountSid = "ACa6a47e3aebe724cdfb2910ebc0389012";
+    const authToken = "85424756e60c0742a9a0febef2b419aa";
+    const client = new twilio(accountSid, authToken);
+    const to = smsContent.to;
+    const body =  smsContent.message;
+
+    client.messages.create({
+      body,
+      to,  // Text this number
+      from: "+14359195107" // From a valid Twilio number
+    })
+    .then((message) => {
+      Logger.info(message);
+      Logger.info("Your New order has been successfully received and is been processed");
+    });
   },
 
   /**
