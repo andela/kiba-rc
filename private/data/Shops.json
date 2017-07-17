@@ -208,6 +208,10 @@
       "format": "%s%v",
       "symbol": "₹"
     },
+    "NGN": {
+      "format": "%s%v",
+      "symbol": "₦"
+    },
     "NOK": {
       "format": "%s%v",
       "symbol": "kr"
@@ -390,7 +394,7 @@
       "scale": 0
     }
   },
-  "currency": "USD",
+  "currency": "NGN",
   "languages": [{
     "label": "العربية",
     "i18n": "ar",
