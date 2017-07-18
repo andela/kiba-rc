@@ -340,33 +340,23 @@ Meteor.methods({
 
     // let vendorPhones = [];
     const smsContent = {
-      to: shoppersPhone,
-      message: "Your Order has been successfully received and is been processed. Thanks."
+      to: shoppersPhone
     };
     Logger.info("smsContent for Customer", smsContent);
 
-    const success = "SMS SENT ";
+    const message = {
+      "new": "Your Order has been successfully received and is been processed. Thanks.",
+      "coreOrderWorkflow/processing": "Your orders is on the way and will soon be delivered",
+      "coreOrderWorkflow/completed": "Your orders has been shipped, thanks.",
+      "coreorderWorkflow/canceled": "Your order was cancelled",
+      "success": "SMS SENT"
+    };
 
-    if (order.workflow.status === "new") {
-      Meteor.call("send/smsAlert", smsContent, (error) => {
-        Meteor.call("orders/response/error", error, success);
-      });
-    } else if (order.workflow.status === "coreOrderWorkflow/processing") {
-      smsContent.message = "Your orders is on the way and will soon be delivered";
-      Meteor.call("send/smsAlert", smsContent, (error) => {
-        Meteor.call("orders/response/error", error, success);
-      });
-    } else if (order.workflow.status === "coreOrderWorkflow/completed") {
-      smsContent.message = "Your orders has been shipped, thanks.";
-      Meteor.call("send/smsAlert", smsContent, (error) => {
-        Meteor.call("orders/response/error", error, success);
-      });
-    } else if (order.workflow.status === "coreorderWorkflow/canceled") {
-      smsContent.message = "Your order was cancelled";
-      Meteor.call("send/smsAlert", smsContent, (error) => {
-        Meteor.call("orders/response/error", error, success);
-      });
-    }
+    Logger.info("smsContent for Customer", smsContent);
+    smsContent.message = message[order.workflow.status];
+    Meteor.call("send/smsAlert", smsContent, (error) => {
+      Meteor.call("orders/response/error", error, message.success);
+    });
 
     if (!this.userId) {
       Logger.error("orders/sendNotification: Access denied");
@@ -497,18 +487,41 @@ Meteor.methods({
     const accountSid = "ACa6a47e3aebe724cdfb2910ebc0389012";
     const authToken = "85424756e60c0742a9a0febef2b419aa";
     const client = new twilio(accountSid, authToken);
-    const to = smsContent.to;
-    const body =  smsContent.message;
 
+    const numb = smsContent.to;
+    let validNo;
+    if (numb.substr(0, 2) === "07" || "08") {
+      validNo = numb.replace(numb.substr(0, 1), "+234");
+    }
+    Logger.info(validNo);
+    const body =  smsContent.message;
     client.messages.create({
       body,
-      to,  // Text this number
+      to: validNo || smsContent.to,  // Text this number
       from: "+14359195107" // From a valid Twilio number
     })
     .then((message) => {
       Logger.info(message);
-      Logger.info("Your New order has been successfully received and is been processed");
+    }).catch((error) => {
+      Logger.info(error);
     });
+  },
+
+  /**
+   * orders/response/error
+   * Logs message based on the error info received
+   * @param {Object} error - error message
+   * @param {String} success - success message
+   * @return {null} no return value
+   */
+  "orders/response/error": (error, success) => {
+    check(error);
+    check(success, String);
+    if (error) {
+      Logger.warn("ERROR", error);
+    } else {
+      Logger.info(success);
+    }
   },
 
   /**
