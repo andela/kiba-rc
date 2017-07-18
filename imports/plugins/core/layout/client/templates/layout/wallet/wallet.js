@@ -1,4 +1,5 @@
 /* eslint no-undef: 0 */
+import swal from "sweetalert2";
 import { Meteor } from "meteor/meteor";
 import { Template } from "meteor/templating";
 import { Reaction } from "/client/api";
@@ -68,6 +69,42 @@ function loadList() {
     Template.instance().state.set("transactions", pageList);
     check();
   }
+}
+
+function confirmTransfer(transaction) {
+  swal({
+    title: "Are you sure?",
+    text: "You will not be able to reverse this action!",
+    type: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#DD6B55",
+    confirmButtonText: "Yes, Transfer it!",
+    html: false
+  }).then(
+    () => {
+      Meteor.call(
+        "wallet/transaction",
+        Meteor.userId(),
+        transaction,
+        (err, res) => {
+          if (res === 2) {
+            Alerts.toast(`No user with email ${recipient}`, "error");
+          } else if (res === 1) {
+            document.getElementById("recipient").value = "";
+            document.getElementById("transferAmount").value = "";
+            Alerts.toast("The transfer was successful", "success");
+          } else {
+            Alerts.toast("An error occured, please try again", "error");
+          }
+        }
+      );
+    },
+    dismiss => {
+      if (dismiss === "cancel") {
+        swal("Cancelled", "Your Money is safe :)", "error");
+      }
+    }
+  );
 }
 
 const getPaystackSettings = () => {
@@ -198,7 +235,7 @@ Template.wallet.events({
       return false;
     }
     payWithPaystack(userMail, amount);
-    },
+  },
   "submit #transfer": event => {
     event.preventDefault();
     const amount = parseInt(
@@ -213,7 +250,7 @@ Template.wallet.events({
       Alerts.toast("Amount cannot be negative", "error");
       return false;
     }
-    if (amount === 0 || amount == "") {
+    if (amount == 0 || amount == "") {
       Alerts.toast("Please enter amount ", "error");
       return false;
     }
@@ -224,22 +261,23 @@ Template.wallet.events({
       date: new Date(),
       transactionType: "Debit"
     };
-    Meteor.call(
-      "wallet/transaction",
-      Meteor.userId(),
-      transaction,
-      (err, res) => {
-        if (res === 2) {
-          Alerts.toast(`No user with email ${recipient}`, "error");
-        } else if (res === 1) {
-          document.getElementById("recipient").value = "";
-          document.getElementById("transferAmount").value = "";
-          Alerts.toast("The transfer was successful", "success");
-        } else {
-          Alerts.toast("An error occured, please try again", "error");
-        }
-      }
-    );
+    confirmTransfer(transaction);
+    // Meteor.call(
+    //   "wallet/transaction",
+    //   Meteor.userId(),
+    //   transaction,
+    //   (err, res) => {
+    //     if (res === 2) {
+    //       Alerts.toast(`No user with email ${recipient}`, "error");
+    //     } else if (res === 1) {
+    //       document.getElementById("recipient").value = "";
+    //       document.getElementById("transferAmount").value = "";
+    //       Alerts.toast("The transfer was successful", "success");
+    //     } else {
+    //       Alerts.toast("An error occured, please try again", "error");
+    //     }
+    //   }
+    // );
   }
 });
 
