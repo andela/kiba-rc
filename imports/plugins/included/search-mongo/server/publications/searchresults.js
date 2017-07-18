@@ -8,9 +8,13 @@ const supportedCollections = ["products", "orders", "accounts"];
 
 function getProductFindTerm(searchTerm, searchTags, userId) {
   const shopId = Reaction.getShopId();
+  // Implement real-time search using regex to create findTerm.
   const findTerm = {
     shopId: shopId,
-    $text: {$search: searchTerm}
+    title: {
+      $regex: searchTerm,
+      $options: "i"
+    }
   };
   if (searchTags.length) {
     findTerm.hashtags = {$all: searchTags};

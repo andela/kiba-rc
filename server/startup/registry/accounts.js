@@ -53,6 +53,14 @@ export default function () {
       label: "Profile",
       icon: "fa fa-user",
       provides: "userAccountDropdown"
+    },
+    {
+      route: "/wallet",
+      template: "wallet",
+      name: "wallet",
+      label: "wallet",
+      icon: "fa fa-google-wallet",
+      provides: "userAccountDropdown"
     }],
     layout: [{
       layout: "coreLayout",
