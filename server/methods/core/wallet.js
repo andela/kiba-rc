@@ -1,4 +1,3 @@
-import { Meteor } from "meteor/meteor";
 import { Wallets, Accounts } from "/lib/collections";
 import * as Schemas from "/lib/collections/schemas/";
 import { check } from "meteor/check";

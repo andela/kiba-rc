@@ -71,7 +71,7 @@ function loadList() {
   }
 }
 
-function confirmTransfer(transaction) {
+function confirmTransfer(transaction, recipient) {
   swal({
     title: "Are you sure?",
     text: "You will not be able to reverse this action!",
@@ -267,7 +267,7 @@ Template.wallet.events({
       date: new Date(),
       transactionType: "Debit"
     };
-    confirmTransfer(transaction);
+    confirmTransfer(transaction, recipient);
   }
 });
 
