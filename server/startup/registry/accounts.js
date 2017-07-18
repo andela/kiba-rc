@@ -41,11 +41,25 @@ export default function () {
       icon: "fa fa-users",
       priority: 1
     }, {
+      route: "/account/wallet",
+      name: "/account/wallet",
+      template: "wallet",
+      provides: "userAccountDropdown"
+
+    }, {
       route: "/account/profile",
       template: "accountProfile",
       name: "account/profile",
       label: "Profile",
       icon: "fa fa-user",
+      provides: "userAccountDropdown"
+    },
+    {
+      route: "/wallet",
+      template: "wallet",
+      name: "wallet",
+      label: "wallet",
+      icon: "fa fa-google-wallet",
       provides: "userAccountDropdown"
     }],
     layout: [{
