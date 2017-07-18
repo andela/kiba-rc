@@ -45,7 +45,6 @@ class NumericInput extends React.Component {
     // precision is mis-represented in accounting.js. Precision in this case is actually scale
     // so we add the property for precision based on scale.
     moneyFormat.precision = moneyFormat.scale !== undefined ? moneyFormat.scale : 2;
-
     return moneyFormat;
   }
 
@@ -87,8 +86,7 @@ class NumericInput extends React.Component {
     // console.log(moneyFormat, value, value * Math.pow(10, 2 - moneyFormat.precision));
     const decimal = moneyFormat.decimal || undefined;
     const unformatedValue = this.unformat(value, decimal);
-
-    return accounting.formatMoney(unformatedValue, moneyFormat);
+    return accounting.formatMoney(unformatedValue, { symbol: "₦", format: "%s%v" }, moneyFormat);
   }
 
   /**
