@@ -6,8 +6,12 @@
         <div class="col-md-6 col-xs-12">
           <form id="deposit" class="form-inline">
             <label class="mr-sm-2" for="inlineFormInputGroup">Deposit</label>
-            <input id="depositAmount" class="form-control" type="number" placeholder="Amount">
-            <button type="submit" class="form-control btn btn-success">Fund Wallet</button>
+            <div class="input-group" style="width:800px;">
+              <input id="depositAmount" type="number" class="form-control input-success" placeholder="Amount">
+              <span class="input-group-btn">
+        <button class="form-control btn btn-success" type="submit">Fund Wallet</button>
+      </span>
+            </div>
           </form>
         </div>
       </div>
@@ -25,30 +29,26 @@
             </tr>
           </thead>
           <tbody>
-            {{#if getTransactions }}
-              {{#each transaction in getTransactions }}
-              <tr>
-                <td>{{capitalize transaction.transactionType}}</td>
-                <td>{{formatPrice transaction.amount}}</td>
-                {{#if transaction.from }}
-                  <td>{{transaction.from}}</td>
-                {{else}}
-                  <td>Self</td>
-                {{/if}}
-                {{#if transaction.to }}
-                  <td>{{transaction.to}}</td>
-                {{else}}
-                  <td>Self</td>
-                {{/if}}
-                {{#if transaction.orderId }}
-                  <td>{{transaction.orderId}}</td>
-                {{else}}
-                  <td>NA</td>
-                {{/if}}
-                <td>{{formatDate transaction.date}}</td>
-              </tr>
-              {{/each}}
-            {{else}}
+            {{#if getTransactions }} {{#each transaction in getTransactions }}
+            <tr>
+              <td>{{capitalize transaction.transactionType}}</td>
+              <td>{{formatPrice transaction.amount}}</td>
+              {{#if transaction.from }}
+              <td>{{transaction.from}}</td>
+              {{else}}
+              <td>Self</td>
+              {{/if}} {{#if transaction.to }}
+              <td>{{transaction.to}}</td>
+              {{else}}
+              <td>Self</td>
+              {{/if}} {{#if transaction.orderId }}
+              <td>{{transaction.orderId}}</td>
+              {{else}}
+              <td>NA</td>
+              {{/if}}
+              <td>{{formatDate transaction.date}}</td>
+            </tr>
+            {{/each}} {{else}}
             <tr>You do not have any transaction yet!</tr>
             {{/if}}
           </tbody>
