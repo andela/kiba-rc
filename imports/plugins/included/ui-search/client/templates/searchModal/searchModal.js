@@ -28,7 +28,8 @@ Template.searchModal.onCreated(function () {
     canLoadMoreProducts: false,
     searchQuery: "",
     productSearchResults: [],
-    tagSearchResults: []
+    tagSearchResults: [],
+    shopSearchResults: []
   });
 
 
@@ -89,6 +90,7 @@ Template.searchModal.onCreated(function () {
         console.log('shops found are: ', shops);
         console.log('vendors found are: ', vendors);
         this.state.set("tagSearchResults", tagResults);
+        this.state.set("shopSearchResults", shops);
 
         // TODO: Do we need this?
         this.state.set("accountSearchResults", "");
@@ -108,6 +110,7 @@ Template.searchModal.onCreated(function () {
         this.state.set("orderSearchResults", "");
         this.state.set("productSearchResults", "");
         this.state.set("tagSearchResults", "");
+        this.state.set("shopSearchResults", "");
       }
 
       /*
@@ -124,6 +127,7 @@ Template.searchModal.onCreated(function () {
         this.state.set("accountSearchResults", "");
         this.state.set("productSearchResults", "");
         this.state.set("tagSearchResults", "");
+        this.state.set("shopSearchResults", "");
       }
     }
   });
@@ -161,6 +165,12 @@ Template.searchModal.helpers({
     console.log('Tag search results:', results);
     return results;
   },
+  shopSearchResults() {
+    const instance = Template.instance();
+    const results = instance.state.get("shopSearchResults");
+    console.log('Shop search results:', results);
+    return results;
+  },
   showSearchResults() {
     return false;
   }
@@ -186,8 +196,11 @@ Template.searchModal.events({
     const instance = Template.instance();
     const facets = instance.state.get("facets") || [];
     const newFacet = $(event.target).data("event-value");
+    console.log('facets: ', facets);
+    console.log('newFacet: ', newFacet);
 
     tagToggle(facets, newFacet);
+    console.log('facets: ', facets);
 
     $(event.target).toggleClass("active-tag btn-active");
 

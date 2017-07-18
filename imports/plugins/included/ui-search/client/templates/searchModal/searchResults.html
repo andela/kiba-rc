@@ -4,9 +4,9 @@
     {{#if productSearchResults}}
       <div style="overflow-y:scroll;width:20%">
     
-        {{> productSearchTags tagSearchResults=tagSearchResults }}
+        {{> productFilterComponent resultsArray=tagSearchResults type="Suggested Tags" }}
 
-        {{> productSearchTags tagSearchResults=tagSearchResults }}
+        {{> productFilterComponent resultsArray=shopSearchResults type="Shops" }}
     
       </div>
     {{/if}}
