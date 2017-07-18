@@ -81,7 +81,7 @@
           "stripeDescription": "Stripe payments",
           "filtrationLabel": "Filtration",
           "filtrationDescription": "Products filtration for Reaction",
-          "paystackPaymentLabel": "Paystack"
+          "paystackPaymentLabel": "paystack"
         },
         "groups": {
           "appearance": "Appearance",

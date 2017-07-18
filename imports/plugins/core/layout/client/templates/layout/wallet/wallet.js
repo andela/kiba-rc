@@ -106,7 +106,6 @@ function confirmTransfer(transaction, recipient) {
     }
   );
 }
-
 const getPaystackSettings = () => {
   const paystack = Packages.findOne({
     name: "paystack",
