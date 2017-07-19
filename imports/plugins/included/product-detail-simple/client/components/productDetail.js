@@ -18,6 +18,16 @@ import { AlertContainer } from "/imports/plugins/core/ui/client/containers";
 import { PublishContainer } from "/imports/plugins/core/revisions";
 
 class ProductDetail extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      showDigital: false,
+      downloadUrl: ""
+    };
+    this.onDigitalChange = this.onDigitalChange.bind(this);
+    this.isDigital = this.isDigital.bind(this);
+    this.onDigitalSaveClick = this.onDigitalSaveClick.bind(this);
+  }
   get tags() {
     return this.props.tags || [];
   }
@@ -42,12 +52,22 @@ class ProductDetail extends Component {
     }
   }
 
+  componentDidMount() {
+    const isDigital = this.props.product.isDigital;
+    const downloadUrl = this.props.product.downloadUrl;
+    if (isDigital) {
+      document.getElementById("digital").checked = true;
+      this.setState({ showDigital: true, downloadUrl });
+    }
+
+  }
+
   renderToolbar() {
     if (this.props.hasAdminPermission) {
       return (
         <Toolbar>
           <ToolbarGroup firstChild={true}>
-            <Translation defaultValue="Product Management" i18nKey="productDetail.productManagement"/>
+            <Translation defaultValue="Product Management" i18nKey="productDetail.productManagement" />
           </ToolbarGroup>
           <ToolbarGroup>
             <DropDownMenu
@@ -73,10 +93,34 @@ class ProductDetail extends Component {
 
     return null;
   }
+  isDigital() {
+    const isChecked =  document.getElementById("digital").checked;
+    if (isChecked) {
+      this.setState({ showDigital: true });
+    } else {
+      this.setState({ showDigital: false });
+      this.props.onProductFieldChange(this.product._id, "isDigital", false);
+      this.props.onProductFieldChange(this.product._id, "downloadUrl", '');
+    }
+  }
+
+  onDigitalSaveClick() {
+    if (this.state.downloadUrl == '') {
+      Alerts.toast("Input download link", "error");
+    } else {
+      this.props.onProductFieldChange(this.product._id, "downloadUrl", this.state.downloadUrl);
+      this.props.onProductFieldChange(this.product._id, "isDigital", true);
+      document.getElementById('digital').checked = true;
+      Alerts.toast("Download Link sucessfully saved", "success");
+    }
+  }
+  onDigitalChange(e) {
+    this.setState({ downloadUrl: e.target.value });
+  }
 
   render() {
     return (
-      <div className="" style={{position: "relative"}}>
+      <div className="" style={{ position: "relative" }}>
         {this.renderToolbar()}
 
         <div className="container-main container-fluid pdp-container" itemScope itemType="http://schema.org/Product">
@@ -163,7 +207,26 @@ class ProductDetail extends Component {
                   }}
                 />
               </div>
+              {this.props.hasAdminPermission && <div className="digitalProduct"  style={{ marginLeft: "20px" }}>
+                <div className="checkbox">
+                  <h4><input id="digital" type="checkbox" value="" onChange={() => this.isDigital()} />Digital Product</h4>
+                </div>
+              </div>}
 
+              {this.state.showDigital &&
+                <div className="digitalProduct">
+                  <div className="checkbox">
+                  <div className="input-group"  style={{ width: "100%" }}>
+                    <span className="input-group-addon">Url</span>
+                    <input type="text" className="form-control" id="url" value={this.state.downloadUrl}
+                      onChange={this.onDigitalChange} placeholder="Enter download url" />
+                       <span className="input-group-btn">
+                    <button id="save" className="form-control btn btn-success" onClick={this.onDigitalSaveClick}>Save</button>
+                    </span>
+                     </div>
+                  </div>
+                </div>
+              }
               <div className="options-add-to-cart">
                 {this.props.topVariantComponent}
               </div>
