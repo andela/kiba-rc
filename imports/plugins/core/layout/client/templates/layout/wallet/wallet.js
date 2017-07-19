@@ -1,4 +1,5 @@
 /* eslint no-undef: 0 */
+import swal from "sweetalert2";
 import { Meteor } from "meteor/meteor";
 import { Template } from "meteor/templating";
 import { Reaction } from "/client/api";
@@ -70,6 +71,41 @@ function loadList() {
   }
 }
 
+function confirmTransfer(transaction, recipient) {
+  swal({
+    title: "Are you sure?",
+    text: "You will not be able to reverse this action!",
+    type: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#DD6B55",
+    confirmButtonText: "Yes, Transfer it!",
+    html: false
+  }).then(
+    () => {
+      Meteor.call(
+        "wallet/transaction",
+        Meteor.userId(),
+        transaction,
+        (err, res) => {
+          if (res === 2) {
+            Alerts.toast(`No user with email ${recipient}`, "error");
+          } else if (res === 1) {
+            document.getElementById("recipient").value = "";
+            document.getElementById("transferAmount").value = "";
+            Alerts.toast("The transfer was successful", "success");
+          } else {
+            Alerts.toast("An error occured, please try again", "error");
+          }
+        }
+      );
+    },
+    dismiss => {
+      if (dismiss === "cancel") {
+        swal("Cancelled", "Your Money is safe :)", "error");
+      }
+    }
+  );
+}
 const getPaystackSettings = () => {
   const paystack = Packages.findOne({
     name: "paystack",
@@ -193,11 +229,44 @@ Template.wallet.events({
       Alerts.toast("Amount cannot be negative", "error");
       return false;
     }
-    if (amount === 0 || amount == "") {
+    if (amount == 0 || amount == "") {
       Alerts.toast("Please enter amount ", "error");
       return false;
     }
     payWithPaystack(userMail, amount);
+  },
+  "submit #transfer": event => {
+    event.preventDefault();
+    const accountDetails = Accounts.find(Meteor.userId()).fetch();
+    const userMail = accountDetails[0].emails[0].address;
+    const amount = parseInt(
+      document.getElementById("transferAmount").value,
+      10
+    );
+    if (amount > Template.instance().state.get("details").balance) {
+      Alerts.toast("Insufficient Balance", "error");
+      return false;
+    }
+    if (amount < 0) {
+      Alerts.toast("Amount cannot be negative", "error");
+      return false;
+    }
+    if (amount == 0 || amount == "") {
+      Alerts.toast("Please enter amount ", "error");
+      return false;
+    }
+    const recipient = document.getElementById("recipient").value;
+    if (userMail == recipient) {
+      Alerts.toast("You can not transfer to yourself", "error");
+      return false;
+    }
+    const transaction = {
+      amount,
+      to: recipient,
+      date: new Date(),
+      transactionType: "Debit"
+    };
+    confirmTransfer(transaction, recipient);
   }
 });
 

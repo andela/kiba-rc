@@ -6,33 +6,31 @@ Meteor.methods({
   "wallet/transaction": (userId, transactions) => {
     check(userId, String);
     check(transactions, Schemas.Transaction);
-    let newBalance;
-    if (transactions.transactionType === "Credit") {
-      newBalance = { balance: transactions.amount };
+    let balanceOptions;
+    const { amount, transactionType } = transactions;
+    if (transactionType === "Credit") {
+      balanceOptions = { balance: amount };
     }
-    if (transactions.transactionType === "Debit") {
+    if (transactionType === "Debit") {
       if (transactions.to) {
-        const receiver = Accounts.findOne({ "emails.address": transactions.to });
+        const recipient = Accounts.findOne({ "emails.0.address": transactions.to });
         const sender = Accounts.findOne(userId);
-        if (receiver) {
-          Meteor.call("wallet/transaction", receiver._id, {
-            amount,
-            from: sender.emails[0].address,
-            date: new Date(),
-            transactionType: "Credit"
-          });
+        if (!recipient) {
+          return 2;
         }
+        // deposit for the recipient
+        Meteor.call("wallet/transaction", recipient._id, {
+          amount,
+          from: sender.emails[0].address,
+          date: new Date(),
+          transactionType: "Credit"
+        });
       }
-      newBalance = { balance: -transactions.amount };
+      balanceOptions = { balance: -amount };
     }
 
-    Wallet.update({ userId }, { $push: { transactions: transactions }, $inc: newBalance }, { upsert: true });
     try {
-      Wallets.update(
-        { userId },
-        { $push: { transactions: transactions }, $inc: newBalance },
-        { upsert: true }
-      );
+      Wallets.update({ userId }, { $push: { transactions: transactions }, $inc: balanceOptions }, { upsert: true });
       return 1;
     } catch (error) {
       return 0;
