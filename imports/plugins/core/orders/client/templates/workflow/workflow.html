@@ -37,7 +37,9 @@
               </div>
             </div>
           {{/each}}
-          {{> coreOrderCancelOrder order=.}}
+          <div class="panel panel-default">
+            {{> coreOrderCancelOrder order=.}}
+          </div>
         </div>
       {{/each}}
     {{/with}}
