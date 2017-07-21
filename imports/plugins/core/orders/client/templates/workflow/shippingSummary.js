@@ -38,6 +38,12 @@ Template.coreOrderShippingSummary.onRendered(function () {
       Meteor.call("workflow/pushOrderWorkflow", "coreOrderWorkflow", "coreOrderCreated", order);
     }
   }
+  if (order.workflow) {
+    if (order.workflow.status === "cancelled") {
+      order.workflow.status = "cancelled";
+      Meteor.call("workflow/pushOrderWorkflow", "coreOrderWorkflow", "cancelled", order);
+    }
+  }
 });
 
 /**

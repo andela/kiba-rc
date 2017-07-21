@@ -12,6 +12,9 @@ Template.dashboardOrdersList.helpers({
     if (this.workflow.status === "coreOrderCompleted") {
       return true;
     }
+    if (this.workflow.status === "cancelled") {
+      return true;
+    }
   },
   orders(data) {
     if (data.hash.data) {
