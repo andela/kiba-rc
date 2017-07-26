@@ -1,0 +1,9 @@
+.myCancelOrder .form-group{
+  width: 78%;
+  display: inline-block;
+}
+.myCancelOrder .flex{
+  text-align-last: center;
+  width: 20%;
+  display: inline-block;
+}
