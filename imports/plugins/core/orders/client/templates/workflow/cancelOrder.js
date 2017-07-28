@@ -71,7 +71,15 @@ Template.coreOrderCancelOrder.events({
 
     const state = template.state;
     const order = state.get("order");
-
+    const amount = parseInt(
+      Template.instance().data.order.billing[0].invoice.total,
+      10
+    );
+    const transaction = {
+      amount,
+      date: new Date(),
+      transactionType: "Credit"
+    };
     Alerts.alert({
       title: "Are you sure you want to cancel this order?",
       showCancelButton: true,
@@ -84,6 +92,14 @@ Template.coreOrderCancelOrder.events({
             template.showCancelOrderForm.set(false);
           }
         });
+        Meteor.call(
+          "wallet/transaction",
+          Meteor.userId(),
+          transaction, (error) => {
+            if (!error) {
+              template.showCancelOrderForm.set(false);
+            }
+          });
       }
     });
   }
