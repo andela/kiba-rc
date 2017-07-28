@@ -9,7 +9,7 @@ import { IconButton, SortableTable } from "/imports/plugins/core/ui/client/compo
 /*
  * searchModal extra functions
  */
-function tagToggle(arr, val) {
+function facetToggle(arr, val) {
   if (arr.length === _.pull(arr, val).length) {
     arr.push(val);
   }
@@ -49,8 +49,9 @@ Template.searchModal.onCreated(function () {
   this.autorun(() => {
     const searchCollection = this.state.get("searchCollection") || "products";
     const searchQuery = this.state.get("searchQuery");
-    const facets = this.state.get("facets") || [];
-    const sub = this.subscribe("SearchResults", searchCollection, searchQuery, facets);
+    const tagFacets = this.state.get("tagFacets") || [];
+    const shopFacets = this.state.get("shopFacets") || [];
+    const sub = this.subscribe("SearchResults", searchCollection, searchQuery, tagFacets, shopFacets);
     if (sub.ready()) {
       /*
        * Product Search
@@ -60,8 +61,6 @@ Template.searchModal.onCreated(function () {
         const productResultsCount = productResults.length;
         this.state.set("productSearchResults", productResults);
         this.state.set("productSearchCount", productResultsCount);
-        console.log('The count is: ', productResultsCount);
-        console.log('products found are: ', productResults);
         const hashtags = [];
         const productIds = [];
         for (const product of productResults) {
@@ -81,16 +80,11 @@ Template.searchModal.onCreated(function () {
           _id: { $in: productIds }
         }).fetch();
         const shopIds = products.map(product => product.shopId);
-        const vendors = products.map(product => product.vendor);
-        const shops = Shops.find({
+        const shopResults = Shops.find({
           _id: { $in: shopIds }
         }).fetch();
-        console.log('tags found are: ', tagResults);
-        console.log('products with full details: ', products);
-        console.log('shops found are: ', shops);
-        console.log('vendors found are: ', vendors);
         this.state.set("tagSearchResults", tagResults);
-        this.state.set("shopSearchResults", shops);
+        this.state.set("shopSearchResults", shopResults);
 
         // TODO: Do we need this?
         this.state.set("accountSearchResults", "");
@@ -162,20 +156,17 @@ Template.searchModal.helpers({
   tagSearchResults() {
     const instance = Template.instance();
     const results = instance.state.get("tagSearchResults");
-    console.log('Tag search results:', results);
     return results;
   },
   shopSearchResults() {
     const instance = Template.instance();
     const results = instance.state.get("shopSearchResults");
-    console.log('Shop search results:', results);
     return results;
   },
   showSearchResults() {
     return false;
   }
 });
-
 
 /*
  * searchModal events
@@ -194,17 +185,22 @@ Template.searchModal.events({
   "click [data-event-action=filter]": function (event, templateInstance) {
     event.preventDefault();
     const instance = Template.instance();
-    const facets = instance.state.get("facets") || [];
-    const newFacet = $(event.target).data("event-value");
-    console.log('facets: ', facets);
-    console.log('newFacet: ', newFacet);
+    const tagFacets = instance.state.get("tagFacets") || [];
+    const shopFacets = instance.state.get("shopFacets") || [];
+    const newTagFacet = $(event.target).data("event-tag-value");
+    const newShopFacet = $(event.target).data("event-shop-value");
 
-    tagToggle(facets, newFacet);
-    console.log('facets: ', facets);
+    if (newShopFacet) {
+      facetToggle(shopFacets, newShopFacet);
+    }
+    if (newTagFacet) {
+      facetToggle(tagFacets, newTagFacet);
+    }
 
     $(event.target).toggleClass("active-tag btn-active");
 
-    templateInstance.state.set("facets", facets);
+    templateInstance.state.set("tagFacets", tagFacets);
+    templateInstance.state.set("shopFacets", shopFacets);
   },
   "click [data-event-action=productClick]": function () {
     const instance = Template.instance();

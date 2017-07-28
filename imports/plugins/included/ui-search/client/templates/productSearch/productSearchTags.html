@@ -6,7 +6,15 @@
     <p class="rui suggested-tags">{{type}}</p>
     <div class="rui search-tags" style="height: 100px;display: block;overflow-y: scroll;">
       {{#each item in resultsArray}}
-        <span class="rui search-tag" data-event-action="filter" data-event-value="{{item._id}}">{{item.name}}</span>
+        {{#if isTag}}
+          <span class="rui search-tag" data-event-action="filter" data-event-tag-value="{{item._id}}">
+            {{item.name}}
+          </span>
+        {{else}}
+          <span class="rui search-tag" data-event-action="filter" data-event-shop-value="{{item._id}}">
+            {{item.name}}
+          </span>
+        {{/if}}
       {{/each}}
     </div>
   </div>
