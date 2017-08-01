@@ -4,7 +4,7 @@
   {{#if resultsArray}}
   <div class="rui search-modal-tags-container">
     <p class="rui suggested-tags">{{type}}</p>
-    <div class="rui search-tags" style="height: 100px;display: block;overflow-y: scroll;">
+    <div class="rui search-tags" style="height: 100px;display: block;overflow-y: scroll; padding-top: 8px;">
       {{#each item in resultsArray}}
         {{#if isTag}}
           <span class="rui search-tag" data-event-action="filter" data-event-tag-value="{{item._id}}">
