@@ -169,10 +169,7 @@ Template.ordersListItem.helpers({
   },
 
   isCancelled(order) {
-    if (order.workflow.status === "cancelled") {
-      return true;
-    }
-    return false;
+    return order.workflow.status === "cancelled";
   },
   cancelledReason(order) {
     return order.comment[0].body;
@@ -207,11 +204,12 @@ Template.ordersListItem.events({
     const isActionViewOpen = Reaction.isActionViewOpen();
     const { order } = instance.data;
 
-    if (order.workflow.status === "new") {
-      Meteor.call("workflow/pushOrderWorkflow", "coreOrderWorkflow", "processing", order);
-    }
-    if (order.workflow.status === "cancelled") {
-      Meteor.call("workflow/pushOrderWorkflow", "coreOrderWorkflow", "cancelled", order);
+    const status = {
+      new: "processing",
+      cancelled: "cancelled"
+    };
+    if (status[order.workflow.status]) {
+      Meteor.call("workflow/pushOrderWorkflow", "coreOrderWorkflow", status[order.workflow.status], order);
     }
     // toggle detail views
     if (isActionViewOpen === false) {

@@ -9,14 +9,10 @@ import "./cancelOrder.css";
  */
 Template.dashboardOrdersList.helpers({
   orderCancelled() {
-    if (this.workflow.status === "cancelled") {
-      return true;
-    }
+    return this.workflow.status === "cancelled";
   },
   orderStatus() {
-    if (this.workflow.status === "coreOrderCompleted") {
-      return true;
-    }
+    return this.workflow.status === "coreOrderCompleted";
   },
   orders(data) {
     if (data.hash.data) {
