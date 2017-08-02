@@ -13,9 +13,12 @@ const orderFilters = [{
 }, {
   name: "completed",
   label: "Completed"
+}, {
+  name: "cancelled",
+  label: "Cancelled"
 }];
 
-const OrderHelper =  {
+const OrderHelper = {
   makeQuery(filter) {
     let query = {};
 
@@ -59,9 +62,9 @@ const OrderHelper =  {
         };
         break;
 
-      case "canceled":
+      case "cancelled":
         query = {
-          "workflow.status": "canceled"
+          "workflow.status": "cancelled"
         };
         break;
 
@@ -163,8 +166,16 @@ Template.ordersListItem.helpers({
 
   orderIsNew(order) {
     return order.workflow.status === "new";
+  },
+
+  isCancelled(order) {
+    return order.workflow.status === "cancelled";
+  },
+  cancelledReason(order) {
+    return order.comment[0].body;
   }
 });
+
 
 Template.ordersListItem.events({
   "click [data-event-action=selectOrder]": function (event) {
@@ -193,8 +204,12 @@ Template.ordersListItem.events({
     const isActionViewOpen = Reaction.isActionViewOpen();
     const { order } = instance.data;
 
-    if (order.workflow.status === "new") {
-      Meteor.call("workflow/pushOrderWorkflow", "coreOrderWorkflow", "processing", order);
+    const status = {
+      new: "processing",
+      cancelled: "cancelled"
+    };
+    if (status[order.workflow.status]) {
+      Meteor.call("workflow/pushOrderWorkflow", "coreOrderWorkflow", status[order.workflow.status], order);
     }
     // toggle detail views
     if (isActionViewOpen === false) {
@@ -223,7 +238,7 @@ Template.orderListFilters.onCreated(function () {
     this.subscribe("Orders");
 
     const filters = orderFilters.map((filter) => {
-      filter.label = i18next.t(`order.filter.${filter.name}`, {defaultValue: filter.label});
+      filter.label = i18next.t(`order.filter.${filter.name}`, { defaultValue: filter.label });
       filter.i18nKeyLabel = `order.filter.${filter.name}`;
       filter.count = Orders.find(OrderHelper.makeQuery(filter.name)).count();
 

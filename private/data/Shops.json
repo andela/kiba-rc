@@ -3084,6 +3084,11 @@
     "guest",
     "product",
     "tag",
+    "dashboard/orders",
+    "orders",
+    "dashboard/pdf/orders",
+    "reaction-orders",
+    "dashboard",
     "index",
     "cart/checkout",
     "cart/completed"

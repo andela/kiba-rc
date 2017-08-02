@@ -34,8 +34,10 @@ Template.coreOrderShippingSummary.onRendered(function () {
 
   if (order.workflow) {
     if (order.workflow.status === "coreOrderCreated") {
-      order.workflow.status = "coreOrderCreated";
       Meteor.call("workflow/pushOrderWorkflow", "coreOrderWorkflow", "coreOrderCreated", order);
+    }
+    if (order.workflow.status === "cancelled") {
+      Meteor.call("workflow/pushOrderWorkflow", "coreOrderWorkflow", "cancelled", order);
     }
   }
 });

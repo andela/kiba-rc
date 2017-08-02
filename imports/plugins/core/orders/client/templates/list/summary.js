@@ -13,7 +13,6 @@ Template.ordersListSummary.helpers({
 
   numericInputProps(value) {
     const { currencyFormat } = Template.instance().data;
-
     return {
       component: NumericInput,
       value,

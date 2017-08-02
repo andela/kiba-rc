@@ -1,16 +1,18 @@
 import moment from "moment";
 import { Template } from "meteor/templating";
 import { Orders, Shops } from "/lib/collections";
+import "./cancelOrder.css";
 
 /**
  * dashboardOrdersList helpers
  *
  */
 Template.dashboardOrdersList.helpers({
+  orderCancelled() {
+    return this.workflow.status === "cancelled";
+  },
   orderStatus() {
-    if (this.workflow.status === "coreOrderCompleted") {
-      return true;
-    }
+    return this.workflow.status === "coreOrderCompleted";
   },
   orders(data) {
     if (data.hash.data) {

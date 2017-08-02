@@ -68,6 +68,10 @@ Template.coreAdminLayout.helpers({
     return items;
   },
 
+  isAdmin() {
+    return Object.keys(Meteor.user().roles).length >= 2;
+  },
+
   isSeperator(props) {
     if (props.type === "seperator") {
       return true;
@@ -79,7 +83,7 @@ Template.coreAdminLayout.helpers({
     const routeName = Reaction.Router.getRouteName();
 
     if (routeName !== "dashboard") {
-      const registryItems = Reaction.Apps({provides: "settings", container: routeName});
+      const registryItems = Reaction.Apps({ provides: "settings", container: routeName });
       const buttons = [];
 
       for (const item of registryItems) {
@@ -127,11 +131,11 @@ Template.coreAdminLayout.helpers({
       "registry.provides": "settings",
       "registry.route": Reaction.Router.getRouteName()
     }, {
-      enabled: 1,
-      registry: 1,
-      name: 1,
-      route: 1
-    });
+        enabled: 1,
+        registry: 1,
+        name: 1,
+        route: 1
+      });
 
     if (reactionApp) {
       const settingsData = _.find(reactionApp.registry, function (item) {
