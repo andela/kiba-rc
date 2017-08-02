@@ -1,7 +1,16 @@
 <template name="searchResults">
 
-  <div class="rui search-modal-results-container">
-    <div class="rui search-modal-results">
+  <div class="rui search-modal-results-container" style="display:flex;justify-content:space-around">
+    {{#if productSearchResults}}
+      <div style="overflow-y:scroll;width:20%">
+    
+        {{> productFilterComponent resultsArray=tagSearchResults type="Suggested Tags" isTag=true }}
+
+        {{> productFilterComponent resultsArray=shopSearchResults type="Shops" isTag=false }}
+    
+      </div>
+    {{/if}}
+    <div class="rui search-modal-results" style="overflow-y:scroll;width:70%">
       {{#if productSearchResults}}
         {{> productResults productSearchResults=productSearchResults}}
       {{/if}}

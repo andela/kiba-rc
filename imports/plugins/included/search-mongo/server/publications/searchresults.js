@@ -6,16 +6,18 @@ import { ProductSearch, OrderSearch, AccountSearch } from "/lib/collections";
 
 const supportedCollections = ["products", "orders", "accounts"];
 
-function getProductFindTerm(searchTerm, searchTags, userId) {
+function getProductFindTerm(searchTerm, searchTags, searchShops, userId) {
   const shopId = Reaction.getShopId();
   // Implement real-time search using regex to create findTerm.
   const findTerm = {
-    shopId: shopId,
     title: {
       $regex: searchTerm,
       $options: "i"
     }
   };
+  if (searchShops.length) {
+    findTerm.shopId = {$all: searchShops};
+  }
   if (searchTags.length) {
     findTerm.hashtags = {$all: searchTags};
   }
@@ -27,9 +29,10 @@ function getProductFindTerm(searchTerm, searchTags, userId) {
 
 export const getResults = {};
 
-getResults.products = function (searchTerm, facets, maxResults, userId) {
-  const searchTags = facets || [];
-  const findTerm = getProductFindTerm(searchTerm, searchTags, userId);
+getResults.products = function (searchTerm, tagFacets, maxResults, userId, shopFacets) {
+  const searchTags = tagFacets || [];
+  const searchShops = shopFacets || [];
+  const findTerm = getProductFindTerm(searchTerm, searchTags, searchShops, userId);
   const productResults = ProductSearch.find(findTerm,
     {
       fields: {
@@ -38,7 +41,9 @@ getResults.products = function (searchTerm, facets, maxResults, userId) {
         hashtags: 1,
         description: 1,
         handle: 1,
-        price: 1
+        price: 1,
+        vendor: 1,
+        shopId: 1
       },
       sort: {score: {$meta: "textScore"}},
       limit: maxResults
@@ -120,16 +125,17 @@ getResults.accounts = function (searchTerm, facets, maxResults, userId) {
   return accountResults;
 };
 
-Meteor.publish("SearchResults", function (collection, searchTerm, facets, maxResults = 99) {
+Meteor.publish("SearchResults", function (collection, searchTerm, tagFacets, shopFacets, maxResults = 99) {
   check(collection, String);
   check(collection, Match.Where((coll) => {
     return _.includes(supportedCollections, coll);
   }));
   check(searchTerm, Match.Optional(String));
-  check(facets, Match.OneOf(Array, undefined));
-  Logger.debug(`Returning search results on ${collection}. SearchTerm: |${searchTerm}|. Facets: |${facets}|.`);
+  check(tagFacets, Match.OneOf(Array, undefined));
+  check(shopFacets, Match.OneOf(Array, undefined));
+  Logger.debug(`Returning search results on ${collection}. SearchTerm: |${searchTerm}|. tagFacets: |${tagFacets}|. shopFacets: |${shopFacets}|.`);
   if (!searchTerm) {
     return this.ready();
   }
-  return getResults[collection](searchTerm, facets, maxResults, this.userId);
+  return getResults[collection](searchTerm, tagFacets, maxResults, this.userId, shopFacets);
 });
