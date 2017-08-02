@@ -69,10 +69,7 @@ Template.coreAdminLayout.helpers({
   },
 
   isAdmin() {
-    if (Object.keys(Meteor.user().roles).length < 2) {
-      return false;
-    }
-    return true;
+    return Object.keys(Meteor.user().roles).length >= 2;
   },
 
   isSeperator(props) {
